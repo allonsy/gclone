@@ -1,0 +1,3 @@
+#!/bin/bash
+
+cd `python3 /usr/local/bin/gclone.py $@`
