@@ -142,7 +142,11 @@ def clone_repo_from_input(input, local=False):
             url = make_url(GIT_DEFAULT_DOMAIN, input)
     clone_repo(url)
     actual_repo_name = find_ignore_case(list_subdirs("."), expected_repo_name)
-    return os.path.join(os.getcwd(), actual_repo_name)
+    
+    if actual_repo_name == None:
+        return "."
+    else:
+        return os.path.join(os.getcwd(), actual_repo_name)
 
 
 # main
