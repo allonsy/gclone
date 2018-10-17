@@ -50,7 +50,11 @@ def get_website_domain(url):
     elif is_ssh(url):
         return url.split('@')[1].split(":")[0]
     else:
-        return GIT_DEFAULT_DOMAIN
+        path_elems = url.split("/")
+        if len(path_elems) == 3:
+            return path_elems[0]
+        else:
+            return GIT_DEFAULT_DOMAIN
 
 
 def make_url(domain, fragment):
@@ -75,7 +79,11 @@ def get_path_elements(url):
         parsed_url = new_url.split(":")[1]
         return parsed_url.split("/")
     else:
-        return url.split("/")
+        path_elems = url.split("/")
+        if len(path_elems) == 3:
+            return path_elems[1:]
+        else:
+            return path_elems
 
 def list_subdirs(path_str):
     subfiles = os.listdir(path_str)
@@ -127,7 +135,11 @@ def clone_repo_from_input(input, local=False):
     if is_url(input):
         url = input
     else:
-        url = make_url(GIT_DEFAULT_DOMAIN, input)
+        path_elems = input.split("/")
+        if len(path_elems) == 3:
+            url = make_url(path_elems[0], "/".join(path_elems[1:]))
+        else:
+            url = make_url(GIT_DEFAULT_DOMAIN, input)
     clone_repo(url)
     actual_repo_name = find_ignore_case(list_subdirs("."), expected_repo_name)
     return os.path.join(os.getcwd(), actual_repo_name)
