@@ -12,13 +12,24 @@ prefer_https = False
 
 ARGS = sys.argv
 NUM_ARGS = len(ARGS)
-FLAGS = ARGS[1:-1]
+FLAGS = ARGS[1:]
 LOCAL_FLAG = False
 NOCD_FLAG = False
 if "--local" in FLAGS:
     LOCAL_FLAG = True
 if "--nocd" in FLAGS:
     NOCD_FLAG = True
+
+ARG_URL = None
+for arg in ARGS[1:]:
+    if not arg.startswith("-"):
+        ARG_URL = arg
+        break
+
+if ARG_URL == None:
+    print("Please provide a URL or repo name!")
+    sys.exit(1)
+
 
 def error_out(message):
     print(message, file=sys.stderr)
@@ -155,12 +166,13 @@ def clone_repo_from_input(input, local=False):
 if NUM_ARGS <= 1:
     error_out("Please provide a url or repo to clone!")
 elif NUM_ARGS == 2:
-    print(clone_repo_from_input(ARGS[1]))
+    print(clone_repo_from_input(ARG_URL))
     sys.exit(0)
 else:
-    url = ARGS[-1]
+    url = ARG_URL
     cd_dir = clone_repo_from_input(url, LOCAL_FLAG)
     if NOCD_FLAG:
         print(".")
     else:
         print(cd_dir)
+

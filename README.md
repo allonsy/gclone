@@ -32,8 +32,8 @@ If the repo is already cloned in the target location, `gclone` won't reclone, bu
 
 ## Flags
 
-* `--nocd` : `gclone` will automatically cd into the cloned directory, to disable this, pass the flag `--nocd` BEFORE THE REPO NAME. E.g `gclone --nocd allonsy/gclone`
-* `--local` : Tells gclone to not clone in the standard tree location but rather in the current working directory. `gclone` will still auto cd into the new directory after cloning. Compose this flag with `--nocd` to also not cd into the new directory. Just like `nocd` this flag must be placed before the repo name (although flag ordering doesn't matter)
+* `--nocd` : `gclone` will automatically cd into the cloned directory, to disable this, pass the flag `--nocd`. E.g `gclone --nocd allonsy/gclone`
+* `--local` : Tells gclone to not clone in the standard tree location but rather in the current working directory. `gclone` will still auto cd into the new directory after cloning. Compose this flag with `--nocd` to also not cd into the new directory.
 
 # Customizations
 * `gclone` defaults to using ssh protocol by default (unless specified by the url). To Change this to https, change the `prefer_https` variable in `gclone.py`
