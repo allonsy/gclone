@@ -1,0 +1,13 @@
+#compdef gclone
+
+_gclone() {
+    local PREFIXES=(
+        "~/Projects/git/github.com"
+        "~/Projects/git"
+    )
+
+    _arguments "--nocd[don\'t cd into repo]" "--local[clone repo in current directory]" \
+    ":repo:_path_files -W ~/Projects/git -W ~/Projects/git/github.com -/"
+}
+
+_gclone "$@"
