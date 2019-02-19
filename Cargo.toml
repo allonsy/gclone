@@ -1,0 +1,8 @@
+[package]
+name = "gclone"
+version = "0.1.0"
+authors = ["Alec Snyder <linuxbash8@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+url = "1.7.2"
