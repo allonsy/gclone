@@ -12,9 +12,9 @@ struct ShortHandUrl {
 
 #[derive(Eq, PartialEq, Debug)]
 enum RepoUrl {
-    HttpsUrl(url::Url),
-    SSHUrl(url::Url),
-    ShortUrl(ShortHandUrl),
+    Https(url::Url),
+    SSH(url::Url),
+    Short(ShortHandUrl),
 }
 
 #[derive(Eq, PartialEq, Debug)]
@@ -27,41 +27,41 @@ impl Repo {
         if is_https_url(url) {
             let parsed_url = url::Url::parse(&url);
             if parsed_url.is_ok() {
-                return Repo {
-                    url: RepoUrl::HttpsUrl(parsed_url.unwrap()),
-                };
+                Repo {
+                    url: RepoUrl::Https(parsed_url.unwrap()),
+                }
             } else {
                 error_out(&format!("Unknown https url: {}", url));
             }
         } else if is_ssh_url(url) {
             let parsed_url = url::Url::parse(&url);
             if parsed_url.is_ok() {
-                return Repo {
-                    url: RepoUrl::SSHUrl(parsed_url.unwrap()),
-                };
+                Repo {
+                    url: RepoUrl::SSH(parsed_url.unwrap()),
+                }
             } else {
                 error_out(&format!("Unknown ssh url: {}", url));
             }
         } else {
-            let paths: Vec<&str> = url.split("/").collect();
-            if paths[0].contains(":") {
+            let paths: Vec<&str> = url.split('/').collect();
+            if paths[0].contains(':') {
                 let is_https = false;
-                let domain_paths = paths[0].split(":").collect::<Vec<&str>>()[0]
-                    .split("@")
+                let domain_paths = paths[0].split(':').collect::<Vec<&str>>()[0]
+                    .split('@')
                     .collect::<Vec<&str>>();
                 let domain = if domain_paths.len() == 1 {
                     domain_paths[0]
                 } else {
                     domain_paths[1]
                 };
-                let mut actual_path = paths[0].split(":").collect::<Vec<&str>>()[1].to_string();
+                let mut actual_path = paths[0].split(':').collect::<Vec<&str>>()[1].to_string();
                 for path in &paths[1..] {
                     actual_path = format!("{}/{}", actual_path, path.to_string());
                 }
 
                 Repo {
-                    url: RepoUrl::ShortUrl(ShortHandUrl {
-                        is_https: is_https,
+                    url: RepoUrl::Short(ShortHandUrl {
+                        is_https,
                         domain: domain.to_string(),
                         path: actual_path,
                     }),
@@ -73,18 +73,18 @@ impl Repo {
                     domain: conf.get_domain().clone(),
                     path: url.to_string(),
                 };
-                return Repo {
-                    url: RepoUrl::ShortUrl(shorthand),
-                };
+                Repo {
+                    url: RepoUrl::Short(shorthand),
+                }
             }
         }
     }
 
     pub fn get_clone_url(&self) -> String {
         match &self.url {
-            RepoUrl::HttpsUrl(hurl) => hurl.as_str().to_string(),
-            RepoUrl::SSHUrl(surl) => surl.as_str().to_string(),
-            RepoUrl::ShortUrl(short) => {
+            RepoUrl::Https(hurl) => hurl.as_str().to_string(),
+            RepoUrl::SSH(surl) => surl.as_str().to_string(),
+            RepoUrl::Short(short) => {
                 let url_start = if short.is_https { "https://" } else { "git@" };
                 let div_char = if short.is_https { '/' } else { ':' };
                 format!("{}{}{}{}", url_start, short.domain, div_char, short.path)
@@ -96,36 +96,34 @@ impl Repo {
         let conf = config::get_config();
         let mut path = conf.get_base_path().clone();
         path.push(self.get_domain());
-        for p in self.get_sub_path().split("/") {
+        for p in self.get_sub_path().split('/') {
             path.push(p);
         }
 
         let extension = path.extension();
-        if extension.is_some() {
-            if extension.unwrap() == "git" {
-                let last_child = path.file_stem().unwrap();
-                let mut new_path: PathBuf = PathBuf::from(path.parent().unwrap().clone());
-                new_path.push(last_child);
-                return new_path;
-            }
+        if extension.is_some() && extension.unwrap() == "git" {
+            let last_child = path.file_stem().unwrap();
+            let mut new_path: PathBuf = PathBuf::from(path.parent().unwrap());
+            new_path.push(last_child);
+            return new_path;
         }
 
-        return path;
+        path
     }
 
     pub fn get_domain(&self) -> String {
         match &self.url {
-            RepoUrl::HttpsUrl(hurl) => hurl.domain().unwrap().to_string(),
-            RepoUrl::SSHUrl(surl) => surl.domain().unwrap().to_string(),
-            RepoUrl::ShortUrl(short) => short.domain.clone(),
+            RepoUrl::Https(hurl) => hurl.domain().unwrap().to_string(),
+            RepoUrl::SSH(surl) => surl.domain().unwrap().to_string(),
+            RepoUrl::Short(short) => short.domain.clone(),
         }
     }
 
     pub fn get_sub_path(&self) -> String {
         match &self.url {
-            RepoUrl::HttpsUrl(hurl) => remove_leading_slash(hurl.path()),
-            RepoUrl::SSHUrl(surl) => remove_leading_slash(surl.path()),
-            RepoUrl::ShortUrl(short) => short.path.clone(),
+            RepoUrl::Https(hurl) => remove_leading_slash(hurl.path()),
+            RepoUrl::SSH(surl) => remove_leading_slash(surl.path()),
+            RepoUrl::Short(short) => short.path.clone(),
         }
     }
 }
@@ -139,19 +137,11 @@ fn remove_leading_slash(path: &str) -> String {
 }
 
 fn is_https_url(url: &str) -> bool {
-    if url.contains("https://") {
-        true
-    } else {
-        false
-    }
+    url.contains("https://")
 }
 
 fn is_ssh_url(url: &str) -> bool {
-    if url.contains("ssh://") {
-        true
-    } else {
-        false
-    }
+    url.contains("ssh://")
 }
 
 #[cfg(test)]
@@ -165,7 +155,7 @@ mod tests {
     fn test_https_url() {
         let url = "https://github.com/user/repo.git";
         let expected_repo = Repo {
-            url: RepoUrl::HttpsUrl(url::Url::parse(url).unwrap()),
+            url: RepoUrl::Https(url::Url::parse(url).unwrap()),
         };
         assert_eq!(Repo::parse(url), expected_repo);
     }
@@ -196,7 +186,7 @@ mod tests {
     fn test_ssh_url() {
         let url = "ssh://aur@aur.archlinux.org/user/repo.git";
         let expected_repo = Repo {
-            url: RepoUrl::SSHUrl(url::Url::parse(url).unwrap()),
+            url: RepoUrl::SSH(url::Url::parse(url).unwrap()),
         };
         assert_eq!(Repo::parse(url), expected_repo);
     }
@@ -227,7 +217,7 @@ mod tests {
     fn test_short_ssh_github() {
         let url = "git@github.com:user/repo.git";
         let expected_val = Repo {
-            url: RepoUrl::ShortUrl(ShortHandUrl {
+            url: RepoUrl::Short(ShortHandUrl {
                 is_https: false,
                 domain: "github.com".to_string(),
                 path: "user/repo.git".to_string(),
@@ -241,7 +231,7 @@ mod tests {
     fn test_short_ssh_github_no_user() {
         let url = "github.com:user/repo.git";
         let expected_val = Repo {
-            url: RepoUrl::ShortUrl(ShortHandUrl {
+            url: RepoUrl::Short(ShortHandUrl {
                 is_https: false,
                 domain: "github.com".to_string(),
                 path: "user/repo.git".to_string(),
@@ -266,7 +256,7 @@ mod tests {
         let url = "user/repo";
         let config = config::get_config();
         let expected_val = Repo {
-            url: RepoUrl::ShortUrl(ShortHandUrl {
+            url: RepoUrl::Short(ShortHandUrl {
                 is_https: config.get_is_https(),
                 domain: config.get_domain().clone(),
                 path: "user/repo".to_string(),
@@ -296,7 +286,7 @@ mod tests {
         let url = "user/repo";
         let mut this_repo = Repo::parse(url);
         match this_repo.url {
-            RepoUrl::ShortUrl(ref mut short) => {
+            RepoUrl::Short(ref mut short) => {
                 short.is_https = true;
             }
             _ => {
@@ -317,7 +307,7 @@ mod tests {
         let url = "user/repo/dir1/dir2";
         let config = config::get_config();
         let expected_val = Repo {
-            url: RepoUrl::ShortUrl(ShortHandUrl {
+            url: RepoUrl::Short(ShortHandUrl {
                 is_https: config.get_is_https(),
                 domain: config.get_domain().clone(),
                 path: "user/repo/dir1/dir2".to_string(),

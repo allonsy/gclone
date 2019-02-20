@@ -96,10 +96,8 @@ fn parse_value(conf: &mut Config, key_name: &str, val: &Value) {
             }
             _ => {}
         }
-    } else if val.is_bool() {
-        if key_name == "defaultHttps" {
-            conf.default_https = val.as_bool().unwrap();
-        }
+    } else if val.is_bool() && key_name == "defaultHttps" {
+        conf.default_https = val.as_bool().unwrap();
     }
 }
 

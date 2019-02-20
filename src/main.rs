@@ -21,11 +21,9 @@ fn main() {
     let repo = repo::Repo::parse(&options.url);
     let full_path = repo.get_fs_path();
 
-    if !options.nocd {
-        if full_path.exists() {
-            println!("{}", full_path.to_str().unwrap());
-            std::process::exit(0);
-        }
+    if !options.nocd && full_path.exists() {
+        println!("{}", full_path.to_str().unwrap());
+        std::process::exit(0);
     }
 
     if !options.local {
