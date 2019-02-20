@@ -59,3 +59,4 @@ defaultHttps = true
 # Contribution
 * All Contributions, Bugs, and suggestions are welcome, just fill out an issue or PR
 * Please ensure that all submitted code passes linting via `cargo clippy` and is run through `rustfmt` via `cargo fmt`.
+* All code changes should pass the existing tests in addition to any new tests added. Tests are checked via `cargo test`
