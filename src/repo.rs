@@ -96,7 +96,7 @@ impl Repo {
         let extension = path.extension();
         if extension.is_some() {
             if extension.unwrap() == "git" {
-                let last_child = path.file_name().unwrap();
+                let last_child = path.file_stem().unwrap();
                 let mut new_path: PathBuf = PathBuf::from(path.parent().unwrap().clone());
                 new_path.push(last_child);
                 return new_path;
