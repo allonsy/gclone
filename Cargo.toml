@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 url = "1.7.2"
+dirs = "1.0.4"
