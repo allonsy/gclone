@@ -2,4 +2,5 @@ language: rust
 rust:
   - stable
 script:
+  - cargo clippy --all-targets --all-features -- -D warnings
   - cargo test --verbose
