@@ -46,9 +46,14 @@ impl Repo {
             let paths: Vec<&str> = url.split("/").collect();
             if paths[0].contains(":") {
                 let is_https = false;
-                let domain: &str = paths[0].split(":").collect::<Vec<&str>>()[0]
+                let domain_paths = paths[0].split(":").collect::<Vec<&str>>()[0]
                     .split("@")
-                    .collect::<Vec<&str>>()[1];
+                    .collect::<Vec<&str>>();
+                let domain = if domain_paths.len() == 1 {
+                    domain_paths[0]
+                } else {
+                    domain_paths[1]
+                };
                 let mut actual_path = paths[0].split(":").collect::<Vec<&str>>()[1].to_string();
                 for path in &paths[1..] {
                     actual_path = format!("{}/{}", actual_path, path.to_string());
@@ -62,9 +67,10 @@ impl Repo {
                     }),
                 }
             } else {
+                let conf = config::get_config();
                 let shorthand = ShortHandUrl {
-                    is_https: config::get_is_https(),
-                    domain: config::get_domain(),
+                    is_https: conf.get_is_https(),
+                    domain: conf.get_domain().clone(),
                     path: url.to_string(),
                 };
                 return Repo {
@@ -87,7 +93,8 @@ impl Repo {
     }
 
     pub fn get_fs_path(&self) -> PathBuf {
-        let mut path = config::get_base_path();
+        let conf = config::get_config();
+        let mut path = conf.get_base_path().clone();
         path.push(self.get_domain());
         for p in self.get_sub_path().split("/") {
             path.push(p);
@@ -231,6 +238,20 @@ mod tests {
     }
 
     #[test]
+    fn test_short_ssh_github_no_user() {
+        let url = "github.com:user/repo.git";
+        let expected_val = Repo {
+            url: RepoUrl::ShortUrl(ShortHandUrl {
+                is_https: false,
+                domain: "github.com".to_string(),
+                path: "user/repo.git".to_string(),
+            }),
+        };
+
+        assert_eq!(Repo::parse(url), expected_val);
+    }
+
+    #[test]
     fn test_short_ssh_github_clone_url() {
         let url = "git@github.com:user/repo.git";
 
@@ -243,10 +264,11 @@ mod tests {
     #[test]
     fn test_simple_url() {
         let url = "user/repo";
+        let config = config::get_config();
         let expected_val = Repo {
             url: RepoUrl::ShortUrl(ShortHandUrl {
-                is_https: config::get_is_https(),
-                domain: config::get_domain(),
+                is_https: config.get_is_https(),
+                domain: config.get_domain().clone(),
                 path: "user/repo".to_string(),
             }),
         };
@@ -257,7 +279,10 @@ mod tests {
     #[test]
     fn test_simple_url_domain() {
         let url = "user/repo";
-        assert_eq!(Repo::parse(url).get_domain(), config::get_domain());
+        assert_eq!(
+            Repo::parse(url).get_domain(),
+            config::get_config().get_domain().clone()
+        );
     }
 
     #[test]
@@ -290,10 +315,11 @@ mod tests {
     #[test]
     fn test_simple_url_multiple() {
         let url = "user/repo/dir1/dir2";
+        let config = config::get_config();
         let expected_val = Repo {
             url: RepoUrl::ShortUrl(ShortHandUrl {
-                is_https: config::get_is_https(),
-                domain: config::get_domain(),
+                is_https: config.get_is_https(),
+                domain: config.get_domain().clone(),
                 path: "user/repo/dir1/dir2".to_string(),
             }),
         };

@@ -9,7 +9,6 @@ static mut GLOBAL_ROLLBACK: Option<Vec<PathBuf>> = None;
 static mut STARTING_DIR: Option<PathBuf> = None;
 
 fn main() {
-    let options = parse_args();
     let starting_dir = env::current_dir();
     if starting_dir.is_err() {
         error_out("Unable to retrieve current working directory");
@@ -18,6 +17,7 @@ fn main() {
         STARTING_DIR = Some(starting_dir.as_ref().unwrap().clone());
     }
 
+    let options = parse_args();
     let repo = repo::Repo::parse(&options.url);
     let full_path = repo.get_fs_path();
 
@@ -50,6 +50,7 @@ fn main() {
 
 fn clone_repo(repo: &repo::Repo) {
     let mut clone_command = Command::new("git");
+    eprintln!("using url: {}", repo.get_clone_url());
     clone_command.arg("clone").arg(repo.get_clone_url());
     let status = clone_command.spawn();
     if status.is_err() {
