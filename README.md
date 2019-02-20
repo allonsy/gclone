@@ -1,4 +1,4 @@
-# gclone
+# gclone [![Build Status](https://travis-ci.org/allonsy/gclone.svg?branch=master)](https://travis-ci.org/allonsy/gclone)
 A simple git clone command line helper
 
 # Installation
