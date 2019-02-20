@@ -1,4 +1,5 @@
 use super::config;
+use super::error_out;
 use std::path::PathBuf;
 use url;
 
@@ -30,7 +31,7 @@ impl Repo {
                     url: RepoUrl::HttpsUrl(parsed_url.unwrap()),
                 };
             } else {
-                panic!("Unknown https url: {}", url);
+                error_out(&format!("Unknown https url: {}", url));
             }
         } else if is_ssh_url(url) {
             let parsed_url = url::Url::parse(&url);
@@ -39,7 +40,7 @@ impl Repo {
                     url: RepoUrl::SSHUrl(parsed_url.unwrap()),
                 };
             } else {
-                panic!("Unknown ssh url: {}", url);
+                error_out(&format!("Unknown ssh url: {}", url));
             }
         } else {
             let paths: Vec<&str> = url.split("/").collect();
