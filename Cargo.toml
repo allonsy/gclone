@@ -8,6 +8,7 @@ edition = "2018"
 url = "1.7.2"
 dirs = "1.0.4"
 toml = "0.4.10"
+glob = "0.2.11"
 
 [[bin]]
 name = "gclone-bin"

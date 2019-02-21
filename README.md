@@ -35,6 +35,11 @@ If the repo is already cloned in the target location, `gclone` won't reclone, bu
 * `--nocd` : `gclone` will automatically cd into the cloned directory, to disable this, pass the flag `--nocd`. E.g `gclone --nocd allonsy/gclone`
 * `--local` : Tells gclone to not clone in the standard tree location but rather in the current working directory. `gclone` will still auto cd into the new directory after cloning. Compose this flag with `--nocd` to also not cd into the new directory.
 
+### Helper flags
+These flags are helper flags used in other programs (like shell completion scripts). They can be used to write meta-scripts over `gclone`.
+* `--get-base-dir`: prints the base directory
+* `--get-base-domain`: prints the default domain 
+
 # Customizations
 You can override some of the basic values via a config file called one of the following:
 * `~/.config/gclone/gclone.toml` (Linux only)

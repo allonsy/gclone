@@ -128,6 +128,16 @@ fn parse_args() -> Options {
                 "--nocd" => {
                     options.nocd = true;
                 }
+                "--get-base-dir" => {
+                    let conf = config::get_config();
+                    println!("{}", conf.get_base_path().display());
+                    std::process::exit(0);
+                }
+                "--get-base-domain" => {
+                    let conf = config::get_config();
+                    println!("{}", conf.get_domain());
+                    std::process::exit(0);
+                }
                 _ => {
                     error_out(&format!("Unknown arg: {}", arg));
                 }
