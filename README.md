@@ -8,6 +8,19 @@ You will need to add the following alias to your shell rc file:
 
 `alias gclone='source gclone'`
 
+If you are running `fish` shell, you will need to change the alias to:
+
+`alias gclone='source gclone.fish'`
+
+## Autocompletions
+To install autocompletions, please run the following commands:
+
+* zsh: `cp completions/zsh/_gclone ~/.config/zsh/completions`
+* fish: `cp completions/fish/gclone_comp.fish ~/.config/fish/completions`
+
+for `zsh` you will also need to add the following line to your `~/.zshrc` file before the `compinit` line:
+* `fpath=(~/.config/zsh/completions $fpath)` to add the `~/.config/zsh/completions` directory to your completions search path
+
 # Usage
 To use `gclone` run gclone with a repo name. Repo names take the following forms:
 
