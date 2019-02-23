@@ -1,17 +1,10 @@
 #compdef gclone
 
 __multi_prefix_files() {
-    BASE_TLD=`gclone-bin --get-base-domain`
-    BASE_DIR=`gclone-bin --get-base-dir`
-    _path_files -W $BASE_DIR/$BASE_TLD -/
-    _path_files -W $BASE_DIR -/
+    compadd -S "" hello/ hello/me/ hello/me/my/
 }
 
 _gclone() {
-    local PREFIXES=(
-        "~/Projects/git/github.com"
-        "~/Projects/git"
-    )
     _arguments \
         "--nocd[don\'t cd into repo]" \
         "--local[clone repo in current directory]" \
