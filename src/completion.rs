@@ -1,5 +1,6 @@
 use super::config;
 use glob::glob;
+use std::cmp::Ordering;
 use std::fs;
 use std::path::PathBuf;
 
@@ -22,7 +23,7 @@ pub fn get_matches(input: &str) -> Vec<(String, String)> {
         return get_top_level_hints(&conf);
     }
 
-    return search_for_component(&conf, input);
+    search_for_component(&conf, input)
 }
 
 fn get_all_non_default_tlds(conf: &config::Config) -> Vec<String> {
@@ -35,7 +36,7 @@ fn get_all_non_default_tlds(conf: &config::Config) -> Vec<String> {
         }
     }
 
-    return new_tlds;
+    new_tlds
 }
 
 fn get_all_tlds(conf: &config::Config) -> Vec<String> {
@@ -48,18 +49,23 @@ fn get_all_tlds(conf: &config::Config) -> Vec<String> {
     }
     let base_dir = cur_dir_res.unwrap();
     for dir in base_dir {
-        if !dir.is_err() {
+        if dir.is_ok() {
             let dir_path = dir.unwrap();
             if dir_path.path().is_dir() {
-                tlds.push(format!(
-                    "{}",
-                    dir_path.path().file_name().unwrap().to_str().unwrap()
-                ));
+                tlds.push(
+                    dir_path
+                        .path()
+                        .file_name()
+                        .unwrap()
+                        .to_str()
+                        .unwrap()
+                        .to_string(),
+                );
             }
         }
     }
 
-    return tlds;
+    tlds
 }
 
 fn scan_single_tld(
@@ -85,12 +91,12 @@ fn scan_single_tld(
             if relative_path.is_ok() {
                 let rel_path = relative_path.unwrap();
                 let input_name = if add_tld_prefix {
-                    format!("{}:{}", tld, rel_path.display())
+                    format!("{}:{}/", tld, rel_path.display())
                 } else {
-                    format!("{}", rel_path.display())
+                    format!("{}/", rel_path.display())
                 };
                 let short_name = if add_short_desc {
-                    format!("{}", glob_path.file_name().unwrap().to_str().unwrap())
+                    format!("{}/", glob_path.file_name().unwrap().to_str().unwrap())
                 } else {
                     input_name.clone()
                 };
@@ -98,13 +104,14 @@ fn scan_single_tld(
             }
         }
     }
-    return completions;
+
+    completions
 }
 
 fn get_top_level_hints(conf: &config::Config) -> Vec<(String, String)> {
     let mut hints = Vec::new();
 
-    let non_default_tlds = get_all_non_default_tlds(conf);
+    let non_default_tlds = get_all_tlds(conf);
     for domain in non_default_tlds {
         let domain_colon = format!("{}:", domain);
         hints.push((domain_colon.clone(), domain_colon));
@@ -121,16 +128,16 @@ fn get_top_level_hints(conf: &config::Config) -> Vec<(String, String)> {
 
     let search_dir = search_dir_res.unwrap();
     for dir in search_dir {
-        if !dir.is_err() {
+        if dir.is_ok() {
             let dir_path = dir.unwrap();
             if dir_path.path().is_dir() {
-                let file_name = format!("{}", dir_path.file_name().to_str().unwrap());
+                let file_name = format!("{}/", dir_path.file_name().to_str().unwrap());
                 hints.push((file_name.clone(), file_name));
             }
         }
     }
 
-    return hints;
+    hints
 }
 
 fn search_for_component(conf: &config::Config, input: &str) -> Vec<(String, String)> {
@@ -142,27 +149,28 @@ fn search_for_component(conf: &config::Config, input: &str) -> Vec<(String, Stri
     let default_path = format!("{}", base_path.join(default_domain).display());
     let default_hints = list_components(&default_path, "", input, 0, max_depth);
 
-    hints.push((
-        format!("{}:", default_domain),
-        format!("{}:", default_domain),
-    ));
-
-    for (hint, short) in default_hints {
-        hints.push((hint.clone(), short.clone()));
+    if default_domain.starts_with(input) {
         hints.push((
-            format!("{}:{}", default_domain, hint),
-            format!("{}:{}", default_domain, short),
+            format!("{}:", default_domain),
+            format!("{}:", default_domain),
         ));
     }
 
+    for (hint, short) in default_hints {
+        hints.push((hint.clone(), short.clone()));
+    }
+
     for tld in get_all_non_default_tlds(conf) {
+        if tld.starts_with(input) {
+            hints.push((format!("{}:", tld), format!("{}:", tld)));
+        }
         let search_path = format!("{}/{}", base_path.display(), tld);
-        for hint in list_components(&search_path, &tld, input, 0, max_depth) {
+        for hint in list_components(&search_path, &format!("{}:", tld), input, 0, max_depth) {
             hints.push(hint);
         }
     }
 
-    return hints;
+    hints
 }
 
 fn list_components(
@@ -185,12 +193,13 @@ fn list_components(
 
     let search_dir = search_dir_res.unwrap();
     for dir in search_dir {
-        if !dir.is_err() {
+        if dir.is_ok() {
             let dir_path = dir.unwrap();
             if dir_path.path().is_dir() {
-                let file_name = format!("{}", dir_path.file_name().to_str().unwrap());
+                let file_path = dir_path.path();
+                let file_name = file_path.file_name().unwrap().to_str().unwrap();
                 if file_name.starts_with(input) {
-                    let hint_name = format!("{}{}", prefix, file_name);
+                    let hint_name = format!("{}{}/", prefix, file_name);
                     hints.push((hint_name.clone(), hint_name.clone()));
                 }
                 let sub_path = format!("{}/{}", path, file_name);
@@ -207,5 +216,20 @@ fn list_components(
             }
         }
     }
-    return hints;
+
+    hints
+}
+
+pub fn hint_sorter(tup1: &(String, String), tup2: &(String, String)) -> Ordering {
+    let desc1 = &tup1.1;
+    let desc2 = &tup2.1;
+
+    if desc1.to_lowercase() < desc2.to_lowercase() {
+        return Ordering::Less;
+    }
+    if desc2.to_lowercase() < desc1.to_lowercase() {
+        return Ordering::Greater;
+    }
+
+    Ordering::Equal
 }

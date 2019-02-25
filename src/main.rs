@@ -165,8 +165,9 @@ fn parse_args() -> Options {
 }
 
 fn print_matches(input: &str) {
-    let hints = completion::get_matches(input);
+    let mut hints = completion::get_matches(input);
+    hints.sort_by(completion::hint_sorter);
     for (hint, description) in hints {
-        println!("{}/t{}", hint, description);
+        println!("[{}]\t[{}]", hint, description);
     }
 }
