@@ -104,6 +104,8 @@ fn parse_value(conf: &mut Config, key_name: &str, val: &Value) {
         }
     } else if val.is_bool() && key_name == "defaultHttps" {
         conf.default_https = val.as_bool().unwrap();
+    } else if val.is_integer() && key_name == "defaultDepth" {
+        conf.default_search_depth = val.as_integer().unwrap() as usize;
     }
 }
 

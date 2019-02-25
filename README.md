@@ -71,6 +71,7 @@ defaultHttps = true
 * `basePath` is the default location where cloning occurs. It defaults to `$HOME/Projects/git`. The path provided must be absolute and doesn't support shortcuts like `~`
 * defaultDomain is the default domain for fetching repos. The default is `github.com`
 * `defaultHttps` is a boolean value which tells `gclone` to use https when the protocol cannot be infered. It defaults to false (defaults to using ssh)
+* `defaultDepth` is an integer value which tells `gclone` how far down to search for repos when shell autocompleting. The default is `2` which matches all domains that use a `user/repo` convention (like github and gitlab). Unless you are using some self hosted domain with top level repos, this value shouldn't be changed.
 * Any of these options can be omitted and can be written in any order
 * the config is a TOML file and must adhere to the toml spec
 
