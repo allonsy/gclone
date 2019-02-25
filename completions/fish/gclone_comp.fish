@@ -1,8 +1,9 @@
 function __add_dir_prefix
-    echo "hello/"
-    echo "hello/one/"
-    echo "hello:two/three/four"
-    echo "hello:two/three/five"
+    set to_comp (commandline -ct)
+    set matches (gclone-bin --match-prefix $to_comp | cut -f 1)
+    for match in $matches
+        echo $match
+    end
 end
 
 complete -c gclone -l nocd -d "don't cd into repo"

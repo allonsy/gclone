@@ -1,7 +1,9 @@
 #compdef gclone
 
 __multi_prefix_files() {
-    compadd -S "" hello/ hello/me/ hello/me/my/
+    IFS=$'\n' matches=($(gclone-bin --match-prefix $line | cut -f 1))
+    IFS=$'\n' descriptions=($(gclone-bin --match-prefix $line | cut -f 2))
+    compadd -S "" -d descriptions $matches
 }
 
 _gclone() {
