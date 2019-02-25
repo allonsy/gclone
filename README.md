@@ -2,24 +2,49 @@
 A simple git clone command line helper
 
 # Installation
-run the install script: `./install.sh`. It will require sudo privledges
 
-You will need to add the following alias to your shell rc file:
+## Manual
+* First, build the project by running `cargo build --release`
+* Then, copy or symlink the binary somewhere onto your path (like `/usr/local/bin`). The binary is located under: `target/release/gclone-bin`
+* You could also run `cargo install` if `~/.cargo/bin` is on your path
 
-`alias gclone='source gclone'`
+### Shell installation
+* After installing, you will need to add the following shell function to your shellrc file (or you may add it to any file that is sourced when your shell is run)
 
-If you are running `fish` shell, you will need to change the alias to:
+For `bash` or `zsh`:
 
-`alias gclone='source gclone.fish'`
+```
+function gclone {
+    cd `gclone-bin $@`
+}
+```
 
-## Autocompletions
+For `fish`:
+
+```
+function gclone
+    cd (gclone-bin $argv)
+end
+```
+
+### Shell Autocompletions
 To install autocompletions, please run the following commands:
 
 * zsh: `cp completions/zsh/_gclone ~/.config/zsh/completions`
-* fish: `cp completions/fish/gclone_comp.fish ~/.config/fish/completions`
+* fish: `cp completions/fish/gclone.fish ~/.config/fish/completions`
 
 for `zsh` you will also need to add the following line to your `~/.zshrc` file before the `compinit` line:
 * `fpath=(~/.config/zsh/completions $fpath)` to add the `~/.config/zsh/completions` directory to your completions search path
+
+For `fish`, you will need to make sure that `~/.config/fish/completions` is on your completion path as well. As long as `XDG_CONFIG_HOME`, the `~/.config/fish/completions` directory should suffice. However, if completions aren't working, you might want to try dumping `gclone.fish` into `/usr/share/fish/completions` or `/usr/share/fish/completions/vendor_completions.d`. 
+
+## OS-Level Installation
+
+### AUR Package
+Coming soon!
+
+### Homebrew Package
+Coming soon!
 
 # Usage
 To use `gclone` run gclone with a repo name. Repo names take the following forms:
@@ -51,7 +76,8 @@ If the repo is already cloned in the target location, `gclone` won't reclone, bu
 ### Helper flags
 These flags are helper flags used in other programs (like shell completion scripts). They can be used to write meta-scripts over `gclone`.
 * `--get-base-dir`: prints the base directory
-* `--get-base-domain`: prints the default domain 
+* `--get-base-domain`: prints the default domain
+* `--match-prefix [ARG]`: prints the shell completions for `$ARG`
 
 # Customizations
 You can override some of the basic values via a config file called one of the following:
