@@ -10,6 +10,7 @@ pub struct Config {
     base_path: PathBuf,
     default_https: bool,
     default_domain: String,
+    default_search_depth: usize,
 }
 
 impl Config {
@@ -18,6 +19,7 @@ impl Config {
             base_path: get_default_base_path(),
             default_domain: get_default_domain().to_string(),
             default_https: get_default_is_https(),
+            default_search_depth: get_default_search_depth(),
         }
     }
 
@@ -31,6 +33,10 @@ impl Config {
 
     pub fn get_is_https(&self) -> bool {
         self.default_https
+    }
+
+    pub fn get_default_search_depth(&self) -> usize {
+        self.default_search_depth
     }
 }
 
@@ -50,7 +56,7 @@ pub fn get_config() -> Config {
 
             let mut config_file_path = conf_dir.unwrap();
             config_file_path.push("gclone");
-            config_file_path.push("gclone.conf");
+            config_file_path.push("gclone.toml");
             config_file_path
         };
     if !config_file_path.exists() {
@@ -118,4 +124,8 @@ fn get_default_domain() -> &'static str {
 
 fn get_default_is_https() -> bool {
     false
+}
+
+fn get_default_search_depth() -> usize {
+    2
 }

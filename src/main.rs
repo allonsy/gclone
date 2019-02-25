@@ -1,3 +1,4 @@
+mod completion;
 mod config;
 mod repo;
 
@@ -119,6 +120,7 @@ fn parse_args() -> Options {
         url: String::new(),
     };
 
+    let mut index = 1;
     for arg in &args[1..] {
         if &arg[0..2] == "--" {
             match arg.as_ref() {
@@ -138,6 +140,14 @@ fn parse_args() -> Options {
                     println!("{}", conf.get_domain());
                     std::process::exit(0);
                 }
+                "--match-prefix" => {
+                    if index + 1 >= args.len() {
+                        print_matches("");
+                    } else {
+                        print_matches(&args[index + 1]);
+                    }
+                    std::process::exit(0);
+                }
                 _ => {
                     error_out(&format!("Unknown arg: {}", arg));
                 }
@@ -145,10 +155,18 @@ fn parse_args() -> Options {
         } else {
             options.url = arg.clone();
         }
+        index += 1;
     }
 
     if options.url.is_empty() {
         error_out("Please provide a URL!");
     }
     options
+}
+
+fn print_matches(input: &str) {
+    let hints = completion::get_matches(input);
+    for (hint, description) in hints {
+        println!("{}/t{}", hint, description);
+    }
 }
