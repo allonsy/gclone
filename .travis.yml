@@ -18,6 +18,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key: $GITHUB_API_KEY
+  file_glob: true
   file: dist/*
   skip_cleanup: true
   on:
