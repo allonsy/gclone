@@ -10,3 +10,15 @@ before_script:
 script:
   - cargo clippy --all-targets --all-features -- -D warnings
   - cargo test --verbose
+before_deploy:
+  - cargo build --release
+  - mkdir dist
+  - cp target/release/gclone-bin dist/gclone-bin-$TRAVIS_OS_NAME-$TRAVIS_TAG
+  - completions/move_completions.sh
+deploy:
+  provider: releases
+  api_key: $GITHUB_API_KEY
+  file: dist/*
+  skip_cleanup: true
+  on:
+    tags: true
