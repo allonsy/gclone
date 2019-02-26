@@ -1,6 +1,6 @@
 [package]
 name = "gclone"
-version = "0.1.0"
+version = "0.5.0"
 authors = ["Alec Snyder <linuxbash8@gmail.com>"]
 edition = "2018"
 
