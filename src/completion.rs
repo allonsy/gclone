@@ -4,9 +4,13 @@ use std::cmp::Ordering;
 use std::fs;
 use std::path::PathBuf;
 
-pub fn get_matches(input: &str) -> Vec<(String, String)> {
-    let conf = config::get_config();
+pub fn get_matches(config: &config::Config, input: &str) -> Vec<(String, String)> {
+    let mut matches = get_unsorted_matches(config, input);
+    matches.sort_by(hint_sorter);
+    matches
+}
 
+fn get_unsorted_matches(conf: &config::Config, input: &str) -> Vec<(String, String)> {
     if input.contains(':') {
         let broken_input: Vec<&str> = input.split(':').collect();
         let domain = broken_input[0];
@@ -232,4 +236,99 @@ pub fn hint_sorter(tup1: &(String, String), tup2: &(String, String)) -> Ordering
     }
 
     Ordering::Equal
+}
+
+#[cfg(test)]
+mod test {
+    use super::super::config;
+    use super::get_matches;
+
+    fn get_testing_config() -> config::Config {
+        let mut conf = config::get_config();
+        let mut base_path = std::env::current_dir().unwrap();
+        base_path.push("test");
+        base_path.push("completions");
+        conf.set_base_path(base_path);
+        conf.set_default_domain("github.com".to_string());
+        conf
+    }
+
+    fn conv_matches(expected_mathes: Vec<(&str, &str)>) -> Vec<(String, String)> {
+        let mut new_matches = Vec::new();
+        for (a, b) in expected_mathes {
+            new_matches.push((a.to_string(), b.to_string()));
+        }
+
+        new_matches
+    }
+
+    #[test]
+    fn test_no_input() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "");
+        let expected_matches = vec![
+            ("allonsy/", "allonsy/"),
+            ("aur.archlinux.org:", "aur.archlinux.org:"),
+            ("github.com:", "github.com:"),
+            ("gitlab.com:", "gitlab.com:"),
+        ];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_short_path() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "allonsy/gclone/");
+        let expected_matches = vec![
+            ("allonsy/gclone/src/", "src/"),
+            ("allonsy/gclone/test/", "test/"),
+        ];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_short_path_incomplete() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "allonsy/gclone/src/co");
+        let expected_matches = vec![("allonsy/gclone/src/code/", "code/")];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_full_path() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "gitlab.com:allonsy/");
+        let expected_matches = vec![("gitlab.com:allonsy/repo/", "repo/")];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_full_path_incomplete() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "gitlab.com:allonsy/re");
+        let expected_matches = vec![("gitlab.com:allonsy/repo/", "repo/")];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_repo_name() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "gcl");
+        let expected_matches = vec![
+            ("allonsy/gclone/", "allonsy/gclone/"),
+            ("aur.archlinux.org:gclone/", "aur.archlinux.org:gclone/"),
+        ];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
+
+    #[test]
+    fn test_user_search() {
+        let conf = get_testing_config();
+        let matches = get_matches(&conf, "all");
+        let expected_matches = vec![
+            ("allonsy/", "allonsy/"),
+            ("gitlab.com:allonsy/", "gitlab.com:allonsy/"),
+        ];
+        assert_eq!(matches, conv_matches(expected_matches));
+    }
 }

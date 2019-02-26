@@ -38,6 +38,16 @@ impl Config {
     pub fn get_default_search_depth(&self) -> usize {
         self.default_search_depth
     }
+
+    #[cfg(test)]
+    pub fn set_base_path(&mut self, new_base_path: PathBuf) {
+        self.base_path = new_base_path;
+    }
+
+    #[cfg(test)]
+    pub fn set_default_domain(&mut self, new_domain: String) {
+        self.default_domain = new_domain;
+    }
 }
 
 pub fn get_config() -> Config {
