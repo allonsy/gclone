@@ -1,4 +1,4 @@
-use super::config;
+use crate::config;
 use glob::glob;
 use std::cmp::Ordering;
 use std::fs;
@@ -240,8 +240,8 @@ pub fn hint_sorter(tup1: &(String, String), tup2: &(String, String)) -> Ordering
 
 #[cfg(test)]
 mod test {
-    use super::super::config;
     use super::get_matches;
+    use crate::config;
 
     fn get_testing_config() -> config::Config {
         let mut conf = config::get_config();

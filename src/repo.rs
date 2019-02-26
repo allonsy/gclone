@@ -1,5 +1,5 @@
-use super::config;
-use super::error_out;
+use crate::config;
+use crate::error_out;
 use std::path::PathBuf;
 use url;
 
@@ -147,10 +147,10 @@ fn is_ssh_url(url: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::super::config;
     use super::Repo;
     use super::RepoUrl;
     use super::ShortHandUrl;
+    use crate::config;
 
     #[test]
     fn test_https_url() {
