@@ -41,7 +41,9 @@ For `fish`, you will need to make sure that `~/.config/fish/completions` is on y
 ## OS-Level Installation
 
 ### AUR Package
-Coming soon!
+* Aur package name: `gclone`
+* It is available via your favorite AUR installation method.
+* Package page: [gclone aur page](https://aur.archlinux.org/packages/gclone/)
 
 ### Homebrew Package
 Coming soon!
