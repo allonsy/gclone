@@ -68,17 +68,7 @@ impl Repo {
                 }
             } else {
                 let conf = config::get_config();
-                let mut base_path = conf.get_base_path().clone();
-                for path_seg in url.split('/') {
-                    base_path = base_path.join(path_seg);
-                }
-                let (domain, path) = if base_path.exists() {
-                    let paths = url.split('/').collect::<Vec<&str>>();
-                    (paths[0].to_string(), paths[1..].join("/"))
-                } else {
-                    (conf.get_domain().clone(), url.to_string())
-                };
-
+                let (domain, path) = (conf.get_domain().clone(), url.to_string());
                 let shorthand = ShortHandUrl {
                     is_https: conf.get_is_https(),
                     domain,
