@@ -301,7 +301,7 @@ mod tests {
                 short.is_https = true;
             }
             _ => {
-                assert!(false, "URL should be parsed to shorthand url");
+                panic!("URL should be parsed to shorthand url");
             }
         }
         assert_eq!(this_repo.get_clone_url(), "https://github.com/user/repo");
