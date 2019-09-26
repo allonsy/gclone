@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 use toml::Value;
 
-static GCLONE_CONF_FILE_VAR_NAME: &'static str = "GCLONE_CONF_FILE";
+static GCLONE_CONF_FILE_VAR_NAME: &str = "GCLONE_CONF_FILE";
 
 pub struct Config {
     base_path: PathBuf,
