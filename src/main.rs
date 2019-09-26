@@ -42,6 +42,8 @@ fn main() {
 
     if options.nocd {
         println!("{}", starting_dir.unwrap().to_str().unwrap());
+    } else if options.local {
+        println!("{}", repo.get_repo_name());
     } else {
         println!("{}", full_path.to_str().unwrap());
     }

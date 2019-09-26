@@ -112,6 +112,16 @@ impl Repo {
         path
     }
 
+    pub fn get_repo_name(&self) -> String {
+        let full_path = self.get_fs_path();
+        let file_name = full_path
+            .file_name()
+            .unwrap_or(full_path.as_os_str())
+            .to_str()
+            .unwrap();
+        file_name.to_string()
+    }
+
     pub fn get_domain(&self) -> String {
         match &self.url {
             RepoUrl::Https(hurl) => hurl.domain().unwrap().to_string(),
